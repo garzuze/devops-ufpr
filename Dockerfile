@@ -15,6 +15,7 @@ FROM node:24-alpine
 
 WORKDIR /usr/src/app
 
+COPY --from=build usr/src/app/dist ./dist
 COPY --from=build usr/src/app/node_modules ./node_modules
 #daqui pra baixo é execução do projeto
 
