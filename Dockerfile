@@ -21,4 +21,4 @@ COPY --from=build /usr/src/app/dist ./dist
 COPY --from=deps /usr/src/app/node_modules ./node_modules
 
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/main"]
