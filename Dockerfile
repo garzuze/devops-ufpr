@@ -1,24 +1,20 @@
-FROM node:24 AS build
+# Vamos preparar o cenário para executar o que queremos
+FROM node:24
 
-WORKDIR /usr/src/app
-COPY package*.json ./
-RUN npm ci
+# Pode ser qualquer nome no node. O workdir serve para não ficarmos dando cd toda hora
+WORKDIR /teste/aula
+
+# COPY <LOCAL> <REMOTO>
+# Ele executa os comandos de forma síncrona, um após o outro; espera terminar a operação anterior
+COPY package*.json .
+
+# Eu sei que o npm ja esta instalado pois eh uma imagem de node
+RUN npm install
+
 COPY . .
-RUN npm run build
 
-# etapa só pra instalar deps de produção limpas
-FROM node:24 AS deps
-
-WORKDIR /usr/src/app
-COPY package*.json ./
-RUN npm ci --omit=dev
-
-# imagem final
-FROM node:24-alpine
-
-WORKDIR /usr/src/app
-COPY --from=build /usr/src/app/dist ./dist
-COPY --from=deps /usr/src/app/node_modules ./node_modules
+# Salienta que essa imagem pretende usar uma porta de rede 
 
 EXPOSE 3000
-CMD ["node", "dist/main"]
+
+CMD ["npm", "start", "dev"]
