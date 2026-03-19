@@ -1,5 +1,6 @@
 # Vamos preparar o cenário para executar o que queremos
-FROM node:24
+# Com esse alias, tudo vai ser apagado depois, tornando a imagem mais leve 😮
+FROM node:24 AS build
 
 # Pode ser qualquer nome no node. O workdir serve para não ficarmos dando cd toda hora
 WORKDIR /teste/aula
@@ -13,8 +14,23 @@ RUN npm install
 
 COPY . .
 
+RUN npm run build
+# Não vai instalar pacotes de dev
+RUN npm ci --omit=dev && npm cache clean --force
+
+FROM node:24-alpine AS prod
+
+WORKDIR /teste/aula
+
+COPY --from=build /teste/aula/package*.json ./
+COPY --from=build /teste/aula/node_modules ./node_modules
+COPY --from=build /teste/aula/dist ./dist
+
+USER node
+ENV NODE_ENV=production
+
 # Salienta que essa imagem pretende usar uma porta de rede 
 
 EXPOSE 3000
 
-CMD ["npm", "start", "dev"]
+CMD ["node", "dist/main"]
